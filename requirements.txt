@@ -1,0 +1,22 @@
+# Core
+pandas>=2.0
+numpy>=1.24
+dask[dataframe]>=2024.1
+pyarrow>=14.0
+
+# ML
+scikit-learn>=1.4
+xgboost>=2.0
+
+# Visualization
+matplotlib>=3.8
+seaborn>=0.13
+plotly>=5.18
+
+# Jupyter
+jupyter>=1.0
+ipykernel>=6.0
+ipywidgets>=8.0
+
+# Utils
+tqdm>=4.66
