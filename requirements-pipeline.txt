@@ -1,0 +1,17 @@
+# Dependências do pipeline offline (src/pipeline/build_dataset.py) e dos
+# notebooks. Só quem regenera o dataset precisa disso — a API não.
+-r api/requirements.txt
+
+dask[dataframe]>=2024.1
+scikit-learn>=1.4
+xgboost>=2.0
+joblib>=1.3
+
+# notebooks / gráficos
+matplotlib>=3.8
+seaborn>=0.13
+plotly>=5.18
+jupyter>=1.0
+ipykernel>=6.0
+ipywidgets>=8.0
+tqdm>=4.66
