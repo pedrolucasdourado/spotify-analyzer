@@ -81,6 +81,18 @@ Accuracy no `classification_report` não tem linha por classe porque é uma perg
 
 Treino e teste ficaram parecidos. O 100% era o bug; ~73% de acurácia é o modelo honesto. A classe `high` continuava difícil (**67** linhas, ~0,5%) — gargalo do **rótulo raro**, não do volume do CSV de charts.
 
+**Detalhamento por classe (teste), as três classes — não só `high`:**
+
+| Classe | Support | RF precisão | RF recall | RF F1 | XGB precisão | XGB recall | XGB F1 |
+|---|---|---|---|---|---|---|---|
+| `high` | 13 | 0,05 | 0,54 | 0,09 | 0,09 | 0,54 | 0,15 |
+| `low` | 2117 | 0,91 | 0,77 | 0,83 | 0,91 | 0,78 | 0,84 |
+| `medium` | 514 | 0,42 | 0,59 | 0,49 | 0,43 | 0,63 | 0,53 |
+| **macro avg** | 2644 | 0,46 | 0,65 | 0,47 | 0,48 | 0,65 | 0,50 |
+| **weighted avg** | 2644 | 0,81 | 0,73 | 0,76 | 0,82 | 0,75 | 0,77 |
+
+`low` puxa o `weighted avg` pra cima só porque é 80% da base (support 2117 de 2644) — isso é o motivo de reportar `macro avg` também: ele trata as três classes com peso igual, e é onde fica visível que `high` (F1 0,09–0,15) e `medium` (F1 0,49–0,53) estão bem mais fracas do que `low` (F1 0,83–0,84) sozinho sugeriria.
+
 Ainda restavam problemas: sem perfil de carreira no modelo, `recommend_label` no CSV final era só a regra de negócio (sem `predicted_label` separado), e o top BR da recomendação não batia com o mercado.
 
 ---
@@ -102,9 +114,15 @@ Ainda restavam problemas: sem perfil de carreira no modelo, `recommend_label` no
 
 **Resultado:** impacto pequeno nas métricas (`profile_Efemero_Cauda_Longa` chegou a 7ª feature da RF). O problema maior — a regra do target — ainda não tinha sido tocado.
 
-| Métrica (teste) | Random Forest | XGBoost |
-|---|---|---|
-| F1 macro | 0,4718 | 0,5106 |
+| Classe | Support | RF precisão | RF recall | RF F1 | XGB precisão | XGB recall | XGB F1 |
+|---|---|---|---|---|---|---|---|
+| `high` | 13 | 0,05 | 0,62 | 0,09 | 0,08 | 0,54 | 0,15 |
+| `low` | 2117 | 0,91 | 0,76 | 0,83 | 0,91 | 0,80 | 0,85 |
+| `medium` | 514 | 0,42 | 0,59 | 0,49 | 0,46 | 0,63 | 0,53 |
+| **macro avg** | 2644 | 0,46 | 0,65 | 0,47 | 0,49 | 0,66 | 0,51 |
+| **weighted avg** | 2644 | 0,81 | 0,73 | 0,76 | 0,82 | 0,77 | 0,79 |
+
+Praticamente idêntico à Rodada 1 — o perfil de carreira ajudou um pouco o recall de `high` (0,54 → 0,62 na RF), mas `medium` continuou o ponto fraco (F1 ~0,49–0,53), e a regra do target (não a falta de feature) seguia sendo o gargalo real.
 
 ---
 
@@ -132,7 +150,15 @@ Ainda restavam problemas: sem perfil de carreira no modelo, `recommend_label` no
 | Precisão `high` | 0,50 | 0,51 |
 | Recall `high` | 0,93 | 0,92 |
 
-Salto grande em relação à Rodada 2 — a causa raiz era a regra do target, não falta de feature.
+| Classe | Support | RF precisão | RF recall | RF F1 | XGB precisão | XGB recall | XGB F1 |
+|---|---|---|---|---|---|---|---|
+| `high` | 143 | 0,50 | 0,93 | 0,65 | 0,51 | 0,92 | 0,66 |
+| `low` | 2098 | 0,94 | 0,67 | 0,78 | 0,93 | 0,73 | 0,82 |
+| `medium` | 383 | 0,29 | 0,66 | 0,40 | 0,32 | 0,62 | 0,43 |
+| **macro avg** | 2624 | 0,58 | 0,75 | 0,61 | 0,59 | 0,76 | 0,63 |
+| **weighted avg** | 2624 | 0,82 | 0,68 | 0,72 | 0,82 | 0,72 | 0,75 |
+
+Salto grande em relação à Rodada 2 — a causa raiz era a regra do target, não falta de feature. Vale reparar que o salto não veio de graça: `low` perdeu recall (0,77→0,67 na RF) porque agora é uma classe bem maior e mais heterogênea (a régua de "ativo nos últimos 90 dias" não mudou, mas o corte de streams sim), e `medium` segue sendo a classe mais fraca (F1 0,40–0,43) — o modelo ainda confunde bastante `medium` com `low`, o que faz sentido: são artistas de popularidade intermediária, mais difíceis de separar do que os extremos.
 
 ---
 
@@ -162,6 +188,16 @@ Salto grande em relação à Rodada 2 — a causa raiz era a regra do target, n�
 | Precisão `high` | 0,45 | 0,47 |
 | Recall `high` | 0,97 | 0,96 |
 
+| Classe | Support | RF precisão | RF recall | RF F1 | XGB precisão | XGB recall | XGB F1 |
+|---|---|---|---|---|---|---|---|
+| `high` | 143 | 0,45 | 0,97 | 0,61 | 0,47 | 0,96 | 0,63 |
+| `low` | 2098 | 0,93 | 0,65 | 0,76 | 0,93 | 0,71 | 0,81 |
+| `medium` | 383 | 0,27 | 0,60 | 0,37 | 0,31 | 0,60 | 0,41 |
+| **macro avg** | 2624 | 0,55 | 0,74 | 0,58 | 0,57 | 0,76 | 0,62 |
+| **weighted avg** | 2624 | 0,80 | 0,66 | 0,70 | 0,82 | 0,71 | 0,74 |
+
+Aqui fica visível o que a métrica só de `high` escondia: mover ~1% das linhas para `Legado Global` custou recall de `low` (0,67→0,65) e principalmente **F1 de `medium`** (0,40→0,37 na RF) — a classe mais fraca do pipeline ficou um pouco mais fraca ainda. É um preço pequeno mas real pago por uma correção que não tinha objetivo nenhum de mexer nessa métrica (era sobre interpretabilidade do perfil, não sobre separar `medium` de `low`).
+
 ---
 
 ## Rodada 5 — Reordenação, deduplicação no notebook e cache do Jupyter
@@ -189,17 +225,22 @@ Salto grande em relação à Rodada 2 — a causa raiz era a regra do target, n�
 
 ## Métricas — evolução completa
 
-| Etapa | RF F1 macro | XGB F1 macro | RF precisão `high` | XGB precisão `high` | RF recall `high` | XGB recall `high` |
-|---|---|---|---|---|---|---|
-| Estado inicial (vazamento, F1 no teste = 1.00) | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 |
-| Rodada 1 — features honestas, regra `avg_rank ≤ 50` | 0,4713 | 0,5008 | 0,05 | 0,08 | 0,54 | 0,54 |
-| Rodada 2 — perfil de carreira | 0,4718 | 0,5106 | 0,05 | 0,08 | 0,62 | 0,54 |
-| Rodada 3 — dedup + regra por percentil | 0,6110 | 0,6340 | 0,50 | 0,51 | 0,93 | 0,92 |
-| Rodada 4 — `Legado Global` + filtro de vintage | 0,5824 | 0,6156 | 0,45 | 0,47 | 0,97 | 0,96 |
+F1 macro/weighted resume tudo num número, mas esconde qual classe está puxando o resultado. A tabela abaixo mostra o **F1-score por classe** (`high`, `low`, `medium`) em cada rodada — não só `high` — porque `low` é 80% da base (domina qualquer média ponderada) e `medium` é sistematicamente a classe mais fraca do pipeline, algo que nenhuma das métricas agregadas usadas até aqui deixava óbvio.
 
-Na Rodada 1 o número que importa não é o F1 macro: é o F1 weighted ~0,76 com treino ≈ teste (o 100% era o vazamento). O salto estrutural vem da Rodada 3 (trocar a regra do target).
+| Etapa | RF F1 `high` | RF F1 `low` | RF F1 `medium` | RF F1 macro | XGB F1 `high` | XGB F1 `low` | XGB F1 `medium` | XGB F1 macro |
+|---|---|---|---|---|---|---|---|---|
+| Estado inicial (vazamento, F1 no teste = 1.00) | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 | ~1,00 |
+| Rodada 1 — features honestas, regra `avg_rank ≤ 50` | 0,09 | 0,83 | 0,49 | 0,4713 | 0,15 | 0,84 | 0,53 | 0,5008 |
+| Rodada 2 — perfil de carreira | 0,09 | 0,83 | 0,49 | 0,4718 | 0,15 | 0,85 | 0,53 | 0,5106 |
+| Rodada 3 — dedup + regra por percentil | 0,65 | 0,78 | 0,40 | 0,6110 | 0,66 | 0,82 | 0,43 | 0,6340 |
+| Rodada 4 — `Legado Global` + filtro de vintage | 0,61 | 0,76 | 0,37 | 0,5824 | 0,63 | 0,81 | 0,41 | 0,6156 |
 
-A queda de F1 macro entre a Rodada 3 e a Rodada 4 é esperada: mover ~1% das linhas para `Legado Global` muda a composição das one-hot e o split. O ganho da Rodada 3 se mantém. O objetivo da Rodada 4 era interpretabilidade dos perfis, que o F1 de recência/momentum não captura.
+Leituras que só aparecem olhando `low` e `medium` junto com `high`:
+
+- **`medium` nunca foi bem resolvido em nenhuma rodada** (F1 entre 0,37 e 0,53) — é consistentemente a classe mais fraca do pipeline, mais até que `high` a partir da Rodada 3. Faz sentido: `medium` é definida por exclusão ("nem claramente `high`, nem claramente `low`"), então é onde as duas classes vizinhas mais se confundem.
+- **`low` é a classe "de graça"** (F1 sempre ≥ 0,76) porque é 80% da base — qualquer modelo, mesmo ruim, acerta a maioria dela. É por isso que reportar só acurácia ou F1 weighted mascara os problemas nas outras duas classes.
+- O ganho da Rodada 3 (trocar a regra do target) veio de melhorar `high` **e** manter `low`/`medium` relativamente estáveis — não foi só "high melhorou às custas do resto". Já a Rodada 4 (`Legado Global`) teve um custo real e mensurável em `low` e principalmente `medium` (F1 caiu em ambos), pago por uma correção de interpretabilidade que não tinha meta nenhuma sobre separar essas duas classes.
+- Na Rodada 1 o número que importa não é o F1 macro: é o F1 weighted ~0,76 com treino ≈ teste (o 100% era o vazamento).
 
 ---
 

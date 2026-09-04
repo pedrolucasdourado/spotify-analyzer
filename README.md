@@ -48,11 +48,15 @@ O pipeline passou por uma rodada de correções depois que a primeira versão ap
 
 ## Métricas atuais (teste, RF / XGBoost)
 
-| Métrica | Random Forest | XGBoost |
-|---|---|---|
-| F1 macro | ~0,58–0,61 | ~0,61–0,64 |
-| Precisão classe `high` | ~0,45–0,50 | ~0,47–0,52 |
-| Recall classe `high` | ~0,93–0,97 | ~0,92–0,95 |
+`low` é 80% da base e `medium` é sistematicamente a classe mais fraca do pipeline — por isso as três classes são reportadas, não só `high` (histórico completo da evolução em [TRAJETORIA.md](TRAJETORIA.md)).
+
+| Classe | RF precisão | RF recall | RF F1 | XGB precisão | XGB recall | XGB F1 |
+|---|---|---|---|---|---|---|
+| `high` | 0,45 | 0,97 | 0,61 | 0,47 | 0,96 | 0,63 |
+| `low` | 0,93 | 0,65 | 0,76 | 0,93 | 0,71 | 0,81 |
+| `medium` | 0,27 | 0,60 | 0,37 | 0,31 | 0,60 | 0,41 |
+| **macro avg** | 0,55 | 0,74 | 0,58 | 0,57 | 0,76 | 0,62 |
+| **weighted avg** | 0,80 | 0,66 | 0,70 | 0,82 | 0,71 | 0,74 |
 
 ## Equipe
 | Membro | Modo | Responsabilidade |
