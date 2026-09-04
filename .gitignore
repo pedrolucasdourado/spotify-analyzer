@@ -1,7 +1,16 @@
-# Data files (too large for git)
+# Dados brutos e intermediários (grandes demais para o git)
 *.csv
 data/raw/
-data/processed/*.parquet
+data/processed/
+
+# O dataset servido pela API é pequeno (1-2 MB) e VAI para o git de
+# propósito: é o que destrava o time inteiro sem reprocessar 10 GB.
+!data/api/
+!data/api/*.parquet
+!data/api/meta.json
+
+# Modelos serializados — regeráveis pelo build_dataset.py
+models/
 
 # Python
 __pycache__/
@@ -10,11 +19,16 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.pytest_cache/
 
 # Environment
 .env
 venv/
 .venv/
+
+# Front
+node_modules/
+web/dist/
 
 # OS
 .DS_Store
